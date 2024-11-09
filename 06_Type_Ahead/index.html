@@ -3,11 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <title>Type Ahead 👀</title>
+  <!-- Link to the external CSS stylesheet -->
   <link rel="stylesheet" href="style.css">
+  <!-- Favicon link -->
   <link rel="icon" href="https://fav.farm/🔥" />
 </head>
 <body>
 
+  <!-- Search form for filtering city and state names -->
   <form class="search-form">
     <input type="text" class="search" placeholder="City or State">
     <ul class="suggestions">
@@ -15,49 +18,59 @@
       <li>or a state</li>
     </ul>
   </form>
-<script>
-const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
 
-const cities = [];
+  <script>
+    // API endpoint to fetch city data (list of cities and states)
+    const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
 
-fetch(endpoint)
-.then(blob => blob.json())
-.then(data => cities.push(...data));
+    // Array to hold the fetched city data
+    const cities = [];
 
-function findMatches(wordToMatch, cities) {
-  return cities.filter(place => {
-    // Check if `city` and `state` properties exist before calling `.match()`
-    const regex = new RegExp(wordToMatch, 'gi');
-    return (place.city && place.city.match(regex)) || (place.state && place.state.match(regex));
-  });
-}
+    // Fetch city data from the API and push it into the cities array
+    fetch(endpoint)
+      .then(blob => blob.json())
+      .then(data => cities.push(...data));
 
+    // Function to find matches for the search input within the cities array
+    function findMatches(wordToMatch, cities) {
+      return cities.filter(place => {
+        // Regular expression for matching the input, case-insensitive
+        const regex = new RegExp(wordToMatch, 'gi');
+        // Check if `city` or `state` matches the input
+        return (place.city && place.city.match(regex)) || (place.state && place.state.match(regex));
+      });
+    }
 
-function displayMatches () {
-  const matchArray = findMatches(this.value, cities);
-  const html = matchArray.map(place => {
-const regex = new RegExp(this.value, 'gi');
-const cityName = place.city.replace(regex, `<span class= "hl">${this.value}</span> `);
-const stateName = place.state.replace(regex, `<span class= "hl">${this.value}</span> `);
+    // Function to display matches in the suggestions list
+    function displayMatches() {
+      const matchArray = findMatches(this.value, cities);
+      const html = matchArray.map(place => {
+        // Highlight matching text in city and state names
+        const regex = new RegExp(this.value, 'gi');
+        const cityName = place.city.replace(regex, `<span class="hl">${this.value}</span>`);
+        const stateName = place.state.replace(regex, `<span class="hl">${this.value}</span>`);
 
-    return `
-    <li>
-      <span class="name">${cityName}, ${stateName}</span>
-      <span class="population">${place.population}</span>
-    </li>
-    `;
-  }).join('');
+        // Return HTML structure for each matching item
+        return `
+          <li>
+            <span class="name">${cityName}, ${stateName}</span>
+            <span class="population">${place.population}</span>
+          </li>
+        `;
+      }).join(''); // Join all items into a single HTML string
 
-  suggestions.innerHTML = html;
-}
+      // Display the generated HTML in the suggestions element
+      suggestions.innerHTML = html;
+    }
 
-const searchInput = document.querySelector('.search');
-const suggestions = document.querySelector('.suggestions');
+    // Select the search input and suggestions list elements
+    const searchInput = document.querySelector('.search');
+    const suggestions = document.querySelector('.suggestions');
 
-searchInput.addEventListener('change', displayMatches);
-searchInput.addEventListener('keyup', displayMatches);
+    // Add event listeners to call displayMatches on input changes
+    searchInput.addEventListener('change', displayMatches);
+    searchInput.addEventListener('keyup', displayMatches);
 
-
-</script>
+  </script>
 </body>
 </html>
